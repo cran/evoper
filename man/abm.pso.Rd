@@ -4,23 +4,12 @@
 \alias{abm.pso}
 \title{abm.pso}
 \usage{
-abm.pso(objective, iterations = 100, iwc = 10, N = 20, phi1 = 2,
-  phi2 = 2, W = 0)
+abm.pso(objective, options = NULL)
 }
 \arguments{
 \item{objective}{An instance of ObjectiveFunction (or subclass) class \link{ObjectiveFunction}}
 
-\item{iterations}{The total number of interactions}
-
-\item{iwc}{The maximun number of iteractions without changes in the output}
-
-\item{N}{The Particle Swarm size}
-
-\item{phi1}{Acceleration coefficient toward the previous best}
-
-\item{phi2}{Acceleration coefficient toward the global best}
-
-\item{W}{Inertia weight or Constriction coefficient}
+\item{options}{An apropiate instance from a sublclass of \link{Options} class}
 }
 \description{
 An implementaion of Particle Swarm Optimization
@@ -30,12 +19,12 @@ method for parameter estimation of Individual-based models.
 \dontrun{
  f<- RepastFunction$new("c:/usr/models/BactoSim(HaldaneEngine-1.0)","ds::Output",300)
 
- f$addFactor(name="cyclePoint",min=0,max=90)
- f$addFactor(name="conjugationCost",min=0,max=100)
- f$addFactor(name="pilusExpressionCost",min=0,max=100)
- f$addFactor(name="gamma0",min=1,max=10)
+ f$Parameter(name="cyclePoint",min=0,max=90)
+ f$Parameter(name="conjugationCost",min=0,max=100)
+ f$Parameter(name="pilusExpressionCost",min=0,max=100)
+ f$Parameter(name="gamma0",min=1,max=10)
 
- abm.pso(f, iwc= 10, iterations=100, N=20, phi1, phi2)
+ abm.pso(f)
 }
 
 }

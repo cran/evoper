@@ -4,24 +4,15 @@
 \alias{abm.saa}
 \title{abm.saa}
 \usage{
-abm.saa(objective, T0, TMIN, L, alpha, d = 0.1)
+abm.saa(objective, options = NULL)
 }
 \arguments{
 \item{objective}{An instance of ObjectiveFunction (or subclass) class \link{ObjectiveFunction}}
 
-\item{T0}{The initial temperature}
-
-\item{TMIN}{The final temperature}
-
-\item{L}{The temperature length}
-
-\item{alpha}{The cooling ratio}
-
-\item{d}{The neighborhood distance. The default value is 0.1 (10\%) of provided parameter range.}
+\item{options}{An apropiate instance from a sublclass of \link{Options} class}
 }
 \value{
-The best solution. The first row is the best of all
-solutions and the second row the current best solution.
+The best solution.
 }
 \description{
 An implementation of Simulated Annealing Algorithm
