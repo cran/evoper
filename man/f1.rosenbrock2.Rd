@@ -10,6 +10,6 @@ f1.rosenbrock2(x)
 \item{x}{Parameter vector}
 }
 \description{
-Two variable Rosebrock function, where f(c(1,1)) = 0
+Two variable Rosenbrock function, where f(c(1,1)) = 0
 }
 

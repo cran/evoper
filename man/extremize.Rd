@@ -7,7 +7,7 @@
 extremize(type, objective, options = NULL)
 }
 \arguments{
-\item{type}{The optimization method (pso,saa,sda,aco)}
+\item{type}{The optimization method (aco,pso,saa,sda)}
 
 \item{objective}{An instance of ObjectiveFunction (or subclass) class \link{ObjectiveFunction}}
 
