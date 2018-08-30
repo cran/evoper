@@ -19,7 +19,7 @@
 #'
 #' @param parameters The Objective Function parameter list
 #' @param N The size of Solution population
-#' @param sampling The population sampling scheme (mcs|lhs|ffs)
+#' @param sampling The population sampling scheme, namelly <mcs|lhs|ffs> standing respectively for montecarlo sampling, latin hypercube sampling and full factorial sampling
 #'
 #' @return A random set of solutions
 #'
@@ -41,6 +41,155 @@ initSolution<- function(parameters, N=20, sampling="mcs") {
     }
   )
 }
+
+#' @title generateSolution
+#'
+#' @description Generates a problema solution using discrete leves
+#'
+#' @param parameters The Objective Function parameter list
+#' @param size The solution size
+#'
+#' @return The solution set
+#'
+#' @importFrom rrepast GetFactorLevels
+#'
+#' @export
+generateSolution<- function(parameters, size) {
+  solution<- c()
+  for(i in 1:size) {
+    s<- c()
+    for(j in 1:nrow(parameters)){
+      #mylevels<- GetFactorLevels(parameters, parameters[[j,"name"]])
+      #s<- c(s, mylevels[trunc(runif(1,1,length(mylevels)))])
+      s<- c(s, sample(GetFactorLevels(parameters, parameters[[j,"name"]]),1))
+    }
+    solution<- rbind(solution,s)
+  }
+  solution<- as.data.frame(solution)
+  names(solution)<- parameters[,"name"]
+  rownames(solution) <- NULL
+  solution
+}
+
+#' @title pop.last
+#'
+#' @description pop an element
+#'
+#' @param x The element collection
+#'
+#' @return The last element added to list LIFO
+#'
+#' @importFrom utils tail
+#'
+#' @export
+pop.last<- function(x) {
+  v<- tail(x,1)
+  eval.parent(substitute(x<- head(x,(length(as.matrix(x))/length(as.matrix(v)))-1)))
+  v
+}
+
+#' @title pop.first
+#'
+#' @description pop an element
+#'
+#' @param x The element collection
+#'
+#' @return The first element added to list FIFO
+#'
+#' @export
+pop.first<- function(x) {
+  v<- head(x,1)
+  eval.parent(substitute(x<- tail(x,(length(as.matrix(x))/length(as.matrix(v)))-1)))
+  v
+}
+
+#' @title push
+#'
+#' @description push an element
+#'
+#' @param x The collection of elements
+#' @param v The value to be pushed
+#'
+#' @return The collection of elements
+#'
+#' @export
+push<- function(x, v) {
+  if(length(v) > 1) {
+    eval.parent(substitute(x<- rbind(x,v)))
+  } else {
+    eval.parent(substitute(x<- append(x,v)))
+  }
+  x
+}
+
+#' @title searchrow
+#'
+#' @description Search for a value value on a matrix
+#'
+#' @param ddata The matrix containing the dataset
+#' @param value The value to search for
+#'
+#' @return Boolean TRUE for those indexes matching value
+#'
+#' @export
+searchrow<- function(ddata, value) {
+  assert(ncol(ddata) == length(value), "Data dimensions doesn't match!")
+  as.logical(apply(ddata, 1, function(x, v) {all(x == rbind(v))},v=value))
+}
+
+
+#' @title paramconverter
+#'
+#' @description Convert parameter from continuous to discrete
+#' and vice-versa if needed
+#'
+#' @param discrete The desired parameter type
+#' @param parameters The current parameter set
+#' @param levelz When discrete is true the number of levels to be generated
+#'
+#' @return The parameter collection casted to desired mode
+#'
+#' @export
+paramconverter<- function(parameters, discrete, levelz=5) {
+
+  genlevelz<- function(parameter, levelz) {
+    #ddelta<- ceiling((as.numeric(parameter["max"]) - as.numeric(parameter["min"]))/levelz)
+    seq(as.numeric(parameter["min"]), as.numeric(parameter["max"]), length.out = levelz)
+  }
+
+  newparameter<- c()
+  for(i in 1:nrow(parameters)) {
+    if(discrete) {
+
+      ## --- Discrete case: levels
+      if(length(grep("levels.*", colnames(parameters),value=TRUE,ignore.case=T)) > 0) {
+        newparameter<- rbind(newparameter, parameters[i,])
+      } else {
+        newlevelz<- c(levels=as.list(genlevelz(parameters[i,], levelz)))
+        newparameter<- rbind(newparameter, c(parameters[i, grep("levels.*|min|max|int", colnames(parameters),invert= TRUE, value=TRUE, ignore.case=T)], newlevelz))
+      }
+    } else {
+
+      ## --- Continuous case: range(min, max)
+      if(length(grep("max|min", colnames(parameters),value=TRUE,ignore.case=T)) > 0) {
+        newparameter<- rbind(newparameter, parameters[i,])
+      } else {
+        curlevelz<- sort(GetFactorLevels(parameters, as.character(parameters[i, "name"])))
+        #newrange<- c(min=min(curlevelz), max=max(curlevelz))
+        newparameter<- rrepast::AddFactor0(factors=newparameter, lambda=unlist(parameters[i,"lambda"]), name=as.character(parameters[i,"name"]), min=min(curlevelz), max=max(curlevelz))
+        #newparameter<- rbind(newparameter, c(parameters[i, grep("levels.*", colnames(parameters),invert= TRUE, value=TRUE, ignore.case=T)], newrange, int="FALSE"))
+      }
+    }
+
+  }
+
+  #newparameter<- as.data.frame(newparameter)
+  #names(newparameter)<- colnames(newparameter)
+  rownames(newparameter) <- NULL
+  newparameter
+}
+
+
 
 #' @title partSolutionSpace
 #'
@@ -209,14 +358,24 @@ enforceBounds<- function(particles, factors) {
   k<- rrepast::GetFactorsSize(factors)
   for(p in 1:nrow(particles)){
     for(i in 1:k) {
+      ## Check for levels and skip the enforce bounds logic
+      if(length(grep("levels.*", colnames(factors),value=TRUE,ignore.case=T)) > 0) next
+
+      ## Adjust the bounds
       lb<- as.numeric(factors[i,"min"]);
       ub<- as.numeric(factors[i,"max"])
       if( particles[p,i] < lb || particles[p,i] > ub || is.na(particles[p,i])) {
         particles[p,i]<- runif(1,lb,ub)
       }
+
+      ## Cast the solution to an integer
+      forceint<- as.logical(factors[i,"int"])
+      if(forceint) {
+        particles[p,i]<- trunc(particles[p,i])
+      }
     }
   }
-  return(particles)
+  particles
 }
 
 

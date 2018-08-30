@@ -9,6 +9,42 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Fixed
 
 
+## EvoPER [0.5.0] - 2018-08-30
+### Added
+- OptionsTS The option class for Tabu search algorithm
+- abm.tabu The EvoPER Tabu search implementation
+- abm.tabu.R New file containing the the tabu search implementation
+- generateSolution Generates combinatory solutions
+- pop.last Pop the last element from list
+- pop.first Pop the first element from list
+- push Push an element to a list
+- searchrow Search data on a matrix
+- paramconverter Convert parameter from continuous to discrete and vice versa
+- netlogo-helper.R Auxiliary functions for running R/NetLogo models
+- NLWrapper.FindJar Wrapper function for NetLogo models
+- NLWrapper.Model Wrapper function for NetLogo models
+- NLWrapper.Shutdown Wrapper function for NetLogo models
+- NLWrapper.GetParameter Wrapper function for NetLogo models
+- NLWrapper.SetParameter Wrapper function for NetLogo models
+- NLWrapper.SetRandomSeed Wrapper function for NetLogo models
+- NLWrapper.Run Wrapper function for NetLogo models
+- NLWrapper.RunExperiment Wrapper function for NetLogo models
+
+### Changed
+- extremize Changed the wrapper for supporting Tabu search
+- Class Estimates optimization replace rbind by data.table's rbindlist
+- ObjectiveFunction support for cast parameter to integer
+- enforceBounds support for cast parameter to integer
+- enforceBounds support for discrete levels
+- abd.pso added paramconverter
+- abd.acor added paramconverter
+- abd.saa added paramconverter
+- abd.ees1 added paramconverter
+- abd.ees2 added paramconverter
+
+### Fixed
+
+
 ## EvoPER [0.4.0] - 2017-03-14
 ### Added
 - f0.rosenbrockn Rosenbrock of N parameters for variadic input

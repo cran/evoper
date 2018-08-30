@@ -28,6 +28,7 @@ ObjectiveFunction<- setRefClass("ObjectiveFunction",
     object = 'ANY',
     objective = 'function',
     replicates = 'numeric',
+    objective.defaults = 'ANY',
     parameters = 'ANY',
     value = 'ANY',
     rawdata = 'ANY',
@@ -42,6 +43,7 @@ ObjectiveFunction<- setRefClass("ObjectiveFunction",
       object<<- NULL
       objective<<- funct
       replicates<<- 1
+      objective.defaults<<- NULL
       parameters<<- NULL
       value<<- NULL
       rawdata<<- NULL
@@ -70,12 +72,21 @@ ObjectiveFunction<- setRefClass("ObjectiveFunction",
       maximize<<- v
     },
 
-    Parameter = function(name, min, max) {
+    Parameter0 = function(...) {
+      assert(hasArg(name) && ((hasArg(min) && hasArg(min)) || hasArg(levels)), "Please provide the required parameters")
+      if(is.null(parameters)) {
+        parameters<<- rrepast::AddFactor0(factors=c(), ...)
+      } else {
+        parameters<<- rrepast::AddFactor0(factors=parameters, ...)
+      }
+    },
+
+    Parameter = function(name, min, max, forceint=FALSE) {
       assert(hasArg(name) && hasArg(min) && hasArg(min), "Please provide the required parameters")
       if(is.null(parameters)) {
-        parameters<<- rrepast::AddFactor(c(), name= name, min= min, max= max)
+        parameters<<- rrepast::AddFactor(factors=c(), name=name, min=min, max=max, int=forceint)
       } else {
-        parameters<<- rrepast::AddFactor(parameters, name= name, min= min, max= max)
+        parameters<<- rrepast::AddFactor(factors=parameters, name=name, min=min, max=max, int=forceint)
       }
     },
 
@@ -129,6 +140,15 @@ ObjectiveFunction<- setRefClass("ObjectiveFunction",
 
     ParametersSize = function() {
       length(parameters[,1])
+    },
+
+
+    defaults = function(v = NULL) {
+      if(!is.null(v)) {
+        objective.defaults<<- v
+      } else {
+        objective.defaults
+      }
     },
 
     RawData = function(v = NULL) {
@@ -235,10 +255,17 @@ RepastFunction<- setRefClass("RepastFunction", contains = "ObjectiveFunction",
 
       ## Initialization of Repast Model instance
       rrepast::Easy.Setup(directory)
-      model<<- rrepast::Model(directory,endAt,datasource,TRUE)
+      ##model<<- rrepast::Model(directory,endAt,datasource,TRUE)
+      my.model<- rrepast::Model(directory,endAt,datasource,TRUE)
+
+      ## --- Update if needed the default parameters
+      if(!is.null(defaults())) {
+        rrepast::UpdateDefaultParameters(my.model, defaults())
+      }
+
 
       ## Building up parameter set
-      p<- rrepast::GetSimulationParameters(model)
+      p<- rrepast::GetSimulationParameters(my.model)
 
       if(!is.null(swarm)){
         tmp<- p
@@ -246,7 +273,10 @@ RepastFunction<- setRefClass("RepastFunction", contains = "ObjectiveFunction",
       }
 
       ## Evaluate model
-      object<<- RunExperiment(model,r=replicates,p, objective)
+      object<<- RunExperiment(my.model,r=replicates,p, objective)
+
+      ## Clean UP
+      Engine.Finish(my.model)
 
       ## Sum the objective output and change the column name
       object$output<<- col.sum(object$output)
@@ -258,9 +288,92 @@ RepastFunction<- setRefClass("RepastFunction", contains = "ObjectiveFunction",
       Value(object$output)
     },
 
+    toString = function() {
+      sstring<- c()
+      paste0(sstring, "Model path= ",directory,", ")
+      paste0(sstring, "Datasource=",datasource,", ")
+      paste0(sstring, "MaX iterations=",endAt)
+      sstring
+    },
+
     show = function() {
       print(paste("Model directory is .... [",directory,"]"))
       print(paste("Model datasource is ... [",datasource,"]"))
       print(paste("Simulation time is .... [",endAt,"]"))
     })
+
+
 )
+
+
+#' @title NetLogoFunction
+#'
+#' @description NetLogoFunction class
+#'
+#' @importFrom methods new
+#' @export NetLogoFunction
+#' @exportClass NetLogoFunction
+NetLogoFunction<- setRefClass("NetLogoFunction", contains = "ObjectiveFunction",
+
+  fields = list(
+    model = 'ANY',
+    netlogodir = 'character',
+    modelfile = 'character',
+    datasource = 'character',
+    maxiterations = 'numeric'
+  ),
+
+  methods = list(
+
+    initialize = function(nldir= NULL, model= NULL, output= NULL, iterations= NULL, objfn= NULL) {
+      if(is.null(objfn)) {
+        objfn<- objective
+      } else {
+        netlogodir<<- nldir
+        modelfile<<- model
+        datasource<<- output
+        maxiterations<<- iterations
+      }
+
+      callSuper(objfn)
+    },
+
+
+    Evaluate = function(swarm) {
+      callSuper(swarm)
+
+      ## --- Model instantiation
+      my.model<- evoper::NLWrapper.Model(netlogodir, modelfile, datasource, maxiterations)
+
+      ## --- Update if needed the default parameters
+        if(!is.null(defaults())) {
+          evoper::NLWrapper.SetParameter(my.model, defaults())
+      }
+
+      ## Evaluate model
+      object<<- evoper::NLWrapper.RunExperiment(my.model, r=1, swarm, objective)
+
+      ## Clean UP
+      evoper::NLWrapper.Shutdown(my.model)
+
+      ## Sum the objective output and change the column name
+      object$output<<- col.sum(object$output)
+      n<- names(object$output)
+      names(object$output)<<- replace(n, which(n == "total"),c("fitness"))
+
+      ## Store the available model's raw data
+      RawData(object)
+      Value(object$output)
+    },
+
+    toString = function() {
+      sstring<- c()
+      paste0(sstring, "NetLogo path= ",netlogodir,", ")
+      paste0(sstring, "Model file=",modelfile,", ")
+      paste0(sstring, "Model datasource=",datasource,", ")
+      paste0(sstring, "MaX iterations=",maxiterations)
+      sstring
+    })
+
+)
+

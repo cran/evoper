@@ -16,6 +16,8 @@
 #'
 #' @field type The configuration type
 #' @field neighborhood The neighborhood function for population methods
+#' @field discrete Flag indicating that and specific algorithm is discrete or continuous
+#' @field nlevelz Default value for generating parameter levels when range is provided, default value is 5
 #' @field container The object holding the configuration otions
 #'
 #' @importFrom methods new
@@ -25,6 +27,8 @@ Options<- setRefClass("Options",
 
   fields = list(
     type = 'ANY',
+    discrete = 'ANY',
+    nlevelz = 'ANY',
     neighborhood = 'ANY',
     container = 'list'
   ),
@@ -34,6 +38,8 @@ Options<- setRefClass("Options",
 
     initialize = function() {
       type<<- 'none'
+      discrete<<- FALSE
+      nlevelz<<- 5
       container<<- list(iterations=500, trace=FALSE)
     },
 
@@ -52,6 +58,22 @@ Options<- setRefClass("Options",
 
     getType = function() {
       type
+    },
+
+    setDiscrete = function(v) {
+      discrete<<- v
+    },
+
+    isDiscrete = function() {
+      discrete
+    },
+
+    setLevels = function(v) {
+      nlevelz<<- v
+    },
+
+    getLevels = function() {
+      nlevelz
     },
 
     setValue = function(k , v) {
@@ -223,12 +245,35 @@ OptionsEES2<- setRefClass("OptionsEES2", contains = "Options",
       setType("ees2")
       setValue("N", 20)            ## Solution size 100
       setValue("rho", 0.25)        ## Solution size 0.05
-      setValue("iterations", 30)   ## Total number of iterations 10
+      setValue("iterations", 30)   ## Total number of iterations
     }
 
   )
 )
 
+#' @title OptionsTS
+#'
+#' @description Options for Tabu search optimization metaheuristic
+#'
+#' @importFrom methods new
+#' @export OptionsTS
+#' @exportClass OptionsTS
+OptionsTS<- setRefClass("OptionsTS", contains = "Options",
+
+  methods = list(
+
+    initialize = function() {
+
+      callSuper()
+      setType("tabu")
+      setDiscrete(TRUE)
+      setValue("N", 25)             ## Neighbor solution size
+      setValue("tabu_size", 16)     ## Tabu size
+      setValue("iterations", 400)   ## Total number of iterations
+    }
+
+  )
+)
 
 #' @title OptionsFactory
 #'
@@ -250,6 +295,7 @@ OptionsFactory<- function(type, v=NULL) {
       acor= { v<- OptionsACOR$new() },
       ees1= { v<- OptionsEES1$new() },
       ees2= { v<- OptionsEES2$new() },
+      tabu= { v<- OptionsTS$new() },
       { stop("Invalid optimization function!") }
     )
   }

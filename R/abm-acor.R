@@ -19,6 +19,15 @@
 #' @param objective An instance of ObjectiveFunction (or subclass) class \link{ObjectiveFunction}
 #' @param options An apropiate instance from a sublclass of \link{Options} class
 #'
+#' @examples \dontrun{
+#'  f<- PlainFunction$new(f0.rosenbrock2)
+#'
+#'  f$Parameter(name="x1",min=-100,max=100)
+#'  f$Parameter(name="x2",min=-100,max=100)
+#'
+#'  extremize("acor", f)
+#' }
+#'
 #' @references
 #'
 #' [1] Socha, K., & Dorigo, M. (2008). Ant colony optimization for continuous domains.
@@ -29,6 +38,11 @@
 abm.acor<- function(objective, options= NULL) {
   ## Handling the heuristic specific options
   options<- OptionsFactory("acor", options)
+  elog.info("Options(%s): %s", options$getType(), options$toString())
+
+  ## --- Adjusting parameter types
+  parameterz<- paramconverter(objective$parameters, options$isDiscrete(), options$getLevels())
+  objective$parameters<- parameterz
 
   ## --- Creating the estimation object for returning results
   estimates<- Estimates$new()

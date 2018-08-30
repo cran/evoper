@@ -15,9 +15,19 @@ abm.acor(objective, options = NULL)
 An implementation of Ant Colony Optimization algorithm
 for continuous variables.
 }
+\examples{
+\dontrun{
+ f<- PlainFunction$new(f0.rosenbrock2)
+
+ f$Parameter(name="x1",min=-100,max=100)
+ f$Parameter(name="x2",min=-100,max=100)
+
+ extremize("acor", f)
+}
+
+}
 \references{
 [1] Socha, K., & Dorigo, M. (2008). Ant colony optimization for continuous domains.
 European Journal of Operational Research, 185(3), 1155-1173.
 http://doi.org/10.1016/j.ejor.2006.06.046
 }
-

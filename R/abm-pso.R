@@ -20,14 +20,12 @@
 #' @param options An apropiate instance from a sublclass of \link{Options} class
 #'
 #' @examples \dontrun{
-#'  f<- RepastFunction$new("c:/usr/models/BactoSim(HaldaneEngine-1.0)","ds::Output",300)
+#'  f<- PlainFunction$new(f0.rosenbrock2)
 #'
-#'  f$Parameter(name="cyclePoint",min=0,max=90)
-#'  f$Parameter(name="conjugationCost",min=0,max=100)
-#'  f$Parameter(name="pilusExpressionCost",min=0,max=100)
-#'  f$Parameter(name="gamma0",min=1,max=10)
+#'  f$Parameter(name="x1",min=-100,max=100)
+#'  f$Parameter(name="x2",min=-100,max=100)
 #'
-#'  abm.pso(f)
+#'  extremize("pso", f)
 #' }
 #'
 #' @references
@@ -46,6 +44,11 @@
 abm.pso<- function(objective, options = NULL) {
   ## Handling the heuristic specific options
   options<- OptionsFactory("pso", options)
+  elog.info("Options(%s): %s", options$getType(), options$toString())
+
+  ## --- Adjusting parameter types
+  parameterz<- paramconverter(objective$parameters, options$isDiscrete(), options$getLevels())
+  objective$parameters<- parameterz
 
   ## --- Creating the estimation object for returning results
   estimates<- Estimates$new()
