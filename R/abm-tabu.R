@@ -66,6 +66,7 @@ abm.tabu<- function(objective, options= NULL) {
   s<- generateSolution(parameterz, 1)
 
   ## -- Evaluate
+  elog.info("Evaluate 1st solution")
   s0<- es.evaluate(objective, s)
   push(tabu, getSolution(s0))
 

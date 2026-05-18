@@ -291,8 +291,8 @@ OptionsGA<- setRefClass("OptionsGA", contains = "Options",
       callSuper()
       setType("ga")
       setDiscrete(TRUE)
-      setValue("N", 25)             ## Population size
-      setValue("iterations", 400)   ## Total number of iterations
+      setValue("N", 25)              ## Population size
+      setValue("generations", 400)   ## Total number of iterations
       setValue("tournament_size", 10)
       setValue("crossover_rate", 0.60)
       setValue("mutation_rate", 0.10)

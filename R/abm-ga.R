@@ -53,5 +53,48 @@ abm.ga<- function(objective, options= NULL) {
   ## --- Creating the estimation object for returning results
   estimates<- Estimates$new()
 
+  fitness_fn = ""
+  verbose = ""
+  tournament_select = ""
+  pop_size = ""
+  crossover = ""
+  bounds = ""
+  mutation_rate = ""
+  elitism = ""
+  crossover_rate = ""
+  ## --- Configure algorithm parameters
+  generations<- options$getValue("generations")
+
+
+  for (gen in 1:generations) {
+    # Evaluate fitness
+    fitness <- apply(population, 1, fitness_fn)
+
+    # Track best solution
+    best_idx <- which.max(fitness)
+    best_history[gen] <- fitness[best_idx]
+
+    if (verbose && gen %% 10 == 0) {
+      cat(sprintf("Gen %d: Best fitness = %.6f\n", gen, fitness[best_idx]))
+    }
+
+    # Selection (tournament)
+    selected <- tournament_select(population, fitness, pop_size, elitism)
+
+    # Crossover
+    offspring <- crossover(selected, crossover_rate)
+
+    # Mutation
+    offspring <- mutate(offspring, bounds, mutation_rate)
+
+    # Preserve elites
+    elite_idx <- order(fitness, decreasing = TRUE)[1:elitism]
+    population <- rbind(population[elite_idx, , drop = FALSE],
+                        offspring[1:(pop_size - elitism), , drop = FALSE])
+  }
+
 }
+
+
+
 

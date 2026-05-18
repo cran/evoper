@@ -145,4 +145,26 @@ test_that("GA Search metaheuristic results", {
   elog.level(level)
 })
 
+test_that("GA Search rastrigin", {
+  skip_on_cran()
+
+  level<- elog.level()
+  elog.level("ERROR")
+
+  set.seed(2718282)
+  f<- PlainFunction$new(f0.rastrigin4)
+  f$Parameter(name="x1",min=-5.12,max=5.12)
+  f$Parameter(name="x2",min=-5.12,max=5.12)
+  f$Parameter(name="x3",min=-5.12,max=5.12)
+  f$Parameter(name="x4",min=-5.12,max=5.12)
+  v<- extremize("ga", f)
+  results<- v$getBest()
+
+  expect_equal(round(results$x1,3), 0)
+  expect_equal(round(results$x2,3), 0)
+  expect_equal(round(results$x3,3), 0)
+  expect_equal(round(results$x4,3), 0)
+
+  elog.level(level)
+})
 

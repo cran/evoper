@@ -68,6 +68,28 @@ SetLogLevel<- function(level) {
   assign("pkg.LogLevel", level, pkg.globals)
 }
 
+#' @title basic_config
+#'
+#' @description Wrapper for logging error messages.
+#'
+#' @param level The log level (ERROR|WARN|INFO|DEBUG)
+#' @param file The log file destination
+#'
+#' @importFrom logger log_threshold
+#' @importFrom logger log_formatter appender_console
+#' @importFrom logger log_appender appender_tee formatter_glue
+#' @export
+basic_config <- function(level = "INFO", file = NULL) {
+  log_threshold(level)
+  log_formatter(formatter_glue)
+
+  if (!is.null(file)) {
+    log_appender(appender_tee(file))  # console + file
+  } else {
+    log_appender(appender_console)
+  }
+}
+
 #' @title elog.level
 #'
 #' @description Configure the current log level
@@ -76,13 +98,11 @@ SetLogLevel<- function(level) {
 #'
 #' @return The log level
 #'
-#' @importFrom logging basicConfig
 #' @export
 elog.level<- function(level=NULL) {
   if(!is.null(level)) {
-    #flog.threshold(level)
     SetLogLevel(level)
-    basicConfig(level = level)
+    basic_config(level = level)
   }
   GetLogLevel()
 }
@@ -93,11 +113,10 @@ elog.level<- function(level=NULL) {
 #'
 #' @param ... Variable number of arguments including a format string.
 #'
-#' @importFrom logging logerror
+#' @importFrom logger log_error
 #' @export
 elog.error<- function(...) {
-  #flog.error(...)
-  logerror(...)
+  log_info(...)
 }
 
 #' @title elog.info
@@ -106,11 +125,10 @@ elog.error<- function(...) {
 #'
 #' @param ... Variable number of arguments including a format string.
 #'
-#' @importFrom logging loginfo
+#' @importFrom logger log_info
 #' @export
 elog.info<- function(...) {
-  #log.info(...)
-  loginfo(...)
+  log_info(...)
 }
 
 #' @title elog.debug
@@ -119,11 +137,10 @@ elog.info<- function(...) {
 #'
 #' @param ... Variable number of arguments including a format string.
 #'
-#' @importFrom logging logdebug
+#' @importFrom logger log_debug
 #' @export
 elog.debug<- function(...) {
-  #log.debug(...)
-  logdebug(...)
+  log_debug(...)
 }
 
 

@@ -3,8 +3,18 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 ### Added
+- Rastringin benchmark function to unit test
+- Added Genetic algorithms optimization
 
 ### Changed
+
+### Fixed
+
+## [0.7.0] - 2026-02-10
+### Added
+
+### Changed
+- Replaced logging library by logger library
 
 ### Fixed
 

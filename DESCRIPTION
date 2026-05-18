@@ -1,8 +1,8 @@
 Package: evoper
 Type: Package
 Title: Evolutionary Parameter Estimation for 'Repast Simphony' Models
-Version: 0.6.0
-Date: 2026-01-27
+Version: 0.7.0
+Date: 2026-05-18
 Authors@R: c(
     person("Antonio", "Prestes Garcia", email = "antonio.pgarcia@alumnos.upm.es", role = c("aut","cre")),
     person("Alfonso", " Rodriguez-Paton", email = "arpaton@fi.upm.es", role = c("aut","ths")))
@@ -20,11 +20,11 @@ Description: The EvoPER, Evolutionary Parameter Estimation for Individual-based 
       and with NetLogo (<https://www.netlogo.org/>) which are the most used frameworks for Agent-based modeling. 
 License: MIT + file LICENSE
 Depends: rrepast
-Imports: methods, logging, boot, reshape, ggplot2, deSolve, plot3D,
+Imports: methods, logger, boot, reshape, ggplot2, deSolve, plot3D,
         plyr, data.table, utils, RNetLogo
 RoxygenNote: 7.3.3
 Suggests: testthat
 NeedsCompilation: no
-Packaged: 2026-01-28 11:42:12 UTC; antonio.pgarcia
+Packaged: 2026-05-18 19:20:17 UTC; antonio.pgarcia
 Repository: CRAN
-Date/Publication: 2026-01-28 12:40:02 UTC
+Date/Publication: 2026-05-18 20:00:02 UTC

@@ -177,6 +177,72 @@ f0.rosenbrock4<- function(x1, x2, x3, x4) {
   f1.rosenbrockn(c(x1, x2, x3, x4))
 }
 
+#' @title f0.rastrigin
+#'
+#' @description The rastrigin function of N variables for testing
+#' optimization methods. he range is xi E [-5.12, 5.12].
+#' The global optima for the function is given by
+#' xi = 0, forall i E \{1...N\}, f(x) = 0.
+#'
+#' @param ... The variadic list of function variables.
+#'
+#' @return The function value
+#'
+#' @references
+#'
+#' http://deap.gel.ulaval.ca/doc/dev/api/benchmarks.html#deap.benchmarks.rastrigin
+#'
+#' @export
+f0.rastrigin<- function(...) {
+  x<- list(...)
+  f1.rastrigin(unlist(x))
+}
+
+#' @title f1.rastrigin
+#'
+#' @description The rastrigin function of N variables for testing
+#' optimization methods. The range is xi E [-5.12, 5.12].
+#' The global optima for the function is given by
+#' xi = 0, forall i E \{1...N\}, f(x) = 0.
+#'
+#' @param x The vector of function parameters
+#'
+#' @return The function value
+#'
+#' @references
+#'
+#' http://deap.gel.ulaval.ca/doc/dev/api/benchmarks.html#deap.benchmarks.rastrigin
+#'
+#' @export
+f1.rastrigin<- function(x) {
+  A <- 10
+  N <- length(x)
+  ssum<- 0
+  for(i in 1:N) {
+    ssum<- ssum + (x[i]^2 - A * cos(2 * pi * x[i]))
+  }
+  (A * N + ssum)
+}
+
+#' @title f0.rastrigin4
+#'
+#' @description The rastrigin function of N variables for testing
+#' optimization methods. The range is xi E [-5.12, 5.12].
+#' The global optima for the function is given by
+#' xi = 0, forall i E \{1...N\}, f(x) = 0.
+#'
+#' @param x1 The first function variable
+#' @param x2 The second function variable
+#' @param x3 The third function variable
+#' @param x4 The fourth function variable
+#'
+#' @return The function value
+#'
+#' @export
+f0.rastrigin4<- function(x1, x2, x3, x4) {
+  f1.rastrigin(c(x1, x2, x3, x4))
+}
+
 #' @title f0.schwefel
 #'
 #' @description The schwefel function of N variables for testing optimization
